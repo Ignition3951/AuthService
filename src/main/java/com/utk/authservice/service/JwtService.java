@@ -40,7 +40,7 @@ public class JwtService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    private String createToken(Map<String,Object> claims,String username){
+    public String createToken(Map<String,Object> claims,String username){
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
