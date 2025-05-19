@@ -30,7 +30,7 @@ public class AuthController {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-    @PostMapping("/auth/v1/login")
+    @PostMapping("/auth/v1/signup")
     public ResponseEntity signUp(@RequestBody UserInfoDto userInfoDto){
         try {
             Boolean isSignedUp = userDetailsService.signUp(userInfoDto);
@@ -38,7 +38,7 @@ public class AuthController {
                 return new ResponseEntity<>(Messages.USER_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
             }
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userInfoDto.getUserName());
-            String jwtToken = jwtService.createToken(new HashMap<>(),userInfoDto.getUserName());
+            String jwtToken = jwtService.GenerateToken(userInfoDto.getUserName());
             return new ResponseEntity(JwtResponseDto.builder()
                     .accessToken(jwtToken)
                     .token(refreshToken.getToken())

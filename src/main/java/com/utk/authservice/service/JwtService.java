@@ -10,13 +10,16 @@ import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import static io.jsonwebtoken.SignatureAlgorithm.HS256;
 
 @Service
 public class JwtService {
 
-    private static final String SECRET = "HjzLX7gHIIsCntJbOfbScoFr/zBL0utNNT9zrF1t4es=";
+    private static final String SECRET = "cbd3b7060e5f78a0d58840f744639446730f16b4c63c7024d990720e1baa0bb1";
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -40,13 +43,18 @@ public class JwtService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
+    public String GenerateToken(String username){
+        Map<String,Object> claims=new HashMap<>();
+        return createToken(claims,username);
+    }
+
     public String createToken(Map<String,Object> claims,String username){
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(username)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*1))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+                .claims(claims)
+                .subject(username)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis()+3600000))
+                .signWith(getSigningKey(),HS256).compact();
     }
 
     private Claims extractAllClaims(String token) {

@@ -32,7 +32,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserInfo userInfo = userRepository.findByUsername(username);
+        UserInfo userInfo = userRepository.findByUserName(username);
         if (userInfo == null) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
@@ -40,7 +40,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     public UserInfo checkIfUserAlreadyExists(UserInfoDto userInfoDto) {
-        return userRepository.findByUsername(userInfoDto.getUserName());
+        return userRepository.findByUserName(userInfoDto.getUserName());
     }
 
     public Boolean signUp(UserInfoDto userInfoDto) throws UserDetailsNotValid{
