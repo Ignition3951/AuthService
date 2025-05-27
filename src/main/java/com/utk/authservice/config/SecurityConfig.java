@@ -1,6 +1,7 @@
 package com.utk.authservice.config;
 
 import com.utk.authservice.filter.JwtAuthFilter;
+import com.utk.authservice.kafka.producer.MessageProducer;
 import com.utk.authservice.repositories.UserRepository;
 import com.utk.authservice.service.UserDetailsServiceImpl;
 import lombok.Data;
@@ -33,9 +34,13 @@ public class SecurityConfig {
     @Autowired
     private final UserDetailsServiceImpl userDetailsService;
 
+    @Autowired
+    private final MessageProducer messageProducer;
+
     @Bean
-    public UserDetailsService userDetailsService(@Autowired UserRepository userRepository,PasswordEncoder passwordEncoder){
-        return new UserDetailsServiceImpl(userRepository,passwordEncoder);
+    public UserDetailsService userDetailsService(@Autowired UserRepository userRepository,PasswordEncoder passwordEncoder
+    ,MessageProducer messageProducer){
+        return new UserDetailsServiceImpl(userRepository,passwordEncoder,messageProducer);
     }
 
     @Bean

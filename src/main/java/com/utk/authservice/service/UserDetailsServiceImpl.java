@@ -3,12 +3,16 @@ package com.utk.authservice.service;
 import com.utk.authservice.dto.UserInfoDto;
 import com.utk.authservice.entities.UserInfo;
 import com.utk.authservice.exception.UserDetailsNotValid;
+import com.utk.authservice.kafka.producer.MessageProducer;
 import com.utk.authservice.repositories.UserRepository;
 import com.utk.authservice.util.Messages;
 import com.utk.authservice.util.ValidationUtil;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,14 +25,28 @@ import java.util.UUID;
 
 @Component
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    private final PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MessageProducer messageProducer;
+
+    @Value("${spring.kafka.consumer.group-id}")
+    private String groupId;
+
+
+    public UserDetailsServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, MessageProducer messageProducer) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.messageProducer = messageProducer;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -52,6 +70,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             return false;
         }
         String userId = UUID.randomUUID().toString();
+        userInfoDto.setUserId(userId);
+        messageProducer.sendMessage(groupId,userInfoDto);
         userRepository.save(new UserInfo(userId,
                 userInfoDto.getUserName(),
                 userInfoDto.getPassword(),
